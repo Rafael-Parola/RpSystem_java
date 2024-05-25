@@ -69,7 +69,11 @@ public class TelaClassificacaoFinanceira extends javax.swing.JInternalFrame {
             pst.setString(1, txtDescricao.getText());
             pst.setString(2, TelaPrincipal.lblCodUsoPrincipal.getText());
             pst.setString(3, TelaPrincipal.lblcodEmpresa.getText());
+            
+            // Tipo sera implementado futuramente
             pst.setString(4, cboTipo.getSelectedItem().toString());
+            //Fim do tippo 
+            
             
             ///    pst.setString(4, dataatual.toString());
 
@@ -288,9 +292,11 @@ public class TelaClassificacaoFinanceira extends javax.swing.JInternalFrame {
             }
         });
 
+        cboTipo.setVisible(false);
         cboTipo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "=", "+", "- " }));
         cboTipo.setEnabled(false);
 
+        jLabel4.setVisible(false);
         jLabel4.setText("Tipo:");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -341,9 +347,7 @@ public class TelaClassificacaoFinanceira extends javax.swing.JInternalFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGap(37, 37, 37)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addGap(3, 3, 3))
+                    .addComponent(jLabel1)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(txtCod, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(cboTipo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)

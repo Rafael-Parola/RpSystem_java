@@ -6,6 +6,7 @@ package br.com.rpsystem.telas;
 
 import br.com.rpsystem.dal.ModuloConexao;
 import br.com.rpsystem.funcoes.Arquivo;
+import br.com.rpsystem.funcoes.AtualizaSaldoContas;
 import br.com.rpsystem.funcoes.CarregaSaldoContas;
 import br.com.rpsystem.funcoes.CentralizaForm;
 import br.com.rpsystem.funcoes.GeraBackup;
@@ -295,21 +296,21 @@ public class TelaPrincipal extends javax.swing.JFrame {
             pst = null;
             pst = conexao.prepareStatement(acesso);
             rs = pst.executeQuery();
-            if (rs.next()) {
-                String exibeiconeos = rs.getString(2);
+//            if (rs.next()) {
+//                String exibeiconeos = rs.getString(2);
                 // System.out.println(exibeiconeos);
-                if (exibeiconeos.equals("1")) {
-                    lblIconeOrc.setVisible(true);
-                }
-                if (exibeiconeos.equals("0")) {
-                    lblIconeOrc.setVisible(false);
-                } else {
-                    lblIconeOrc.setVisible(false);
-                }
-
-            } else {
-                lblIconeOrc.setVisible(false);
-            }
+//                if (exibeiconeos.equals("1")) {
+//                    lblIconeOrc.setVisible(true);
+//                }
+//                if (exibeiconeos.equals("0")) {
+//                    lblIconeOrc.setVisible(false);
+//                } else {
+//                    lblIconeOrc.setVisible(false);
+//                }
+//
+//            } else {
+//                lblIconeOrc.setVisible(false);
+//            }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, e);
 
@@ -317,28 +318,6 @@ public class TelaPrincipal extends javax.swing.JFrame {
 
     }
 
-//        private void relCliente() {
-//
-//            String caminhoexecucao = System.getProperty("user.dir");
-//            //JOptionPane.showOptionDialog(null, "Deseja enviar O.S via E-mail?", "Atenção", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, opc, opc[0]);
-//
-//            int confirma = JOptionPane.showOptionDialog(null, "Confirma a impressão do relatório? ", "Atenção", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
-//            //JOptionPane.showConfirmDialog(null, "Confirma a impressão do relatório? ", "Atenção", JOptionPane.YES_NO_OPTION);
-//            if (confirma == JOptionPane.YES_OPTION) {
-//                try {
-//                    // usando o jasper para gerar o relatório
-//                    JasperPrint print = JasperFillManager.fillReport(getClass().getResourceAsStream("/reports/rel_lista_cli.jasper"), null, conexao);
-//                    JasperViewer.viewReport(print, false);
-//
-//                    OutputStream outputStream = new FileOutputStream(new File(caminhoexecucao + "\\relatorios\\" + menRelClientes.getText().concat(".pdf")));
-//                    JasperExportManager.exportReportToPdfStream(print, outputStream);
-//
-//                } catch (Exception e) {
-//                    JOptionPane.showMessageDialog(null, e);
-//
-//                }
-//            }
-//        }
     private void relCliente() {
         String caminhoExecucao = System.getProperty("user.dir");
 
@@ -400,7 +379,27 @@ public class TelaPrincipal extends javax.swing.JFrame {
         }
     }
 
-    private void saindo() {
+//    private void saindo() {
+//        if (options.length >= 2) {
+//            JOptionPane pane = new JOptionPane("Tem certeza que deseja sair?",
+//                    JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION, null, options, options[1]);
+//            JDialog dialog = pane.createDialog(null, "Atenção");
+//            dialog.setVisible(true);
+//
+//            Object selectedValue = pane.getValue();
+//
+//            if (selectedValue instanceof Integer) {
+//                int sair = (int) selectedValue;
+//
+//                if (sair == JOptionPane.YES_OPTION) {
+//                    dispose();
+//                }
+//            }
+//        }
+//
+//    }
+
+     private void saindo() {
         if (options.length >= 2) {
             JOptionPane pane = new JOptionPane("Tem certeza que deseja sair?",
                     JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION, null, options, options[1]);
@@ -412,14 +411,18 @@ public class TelaPrincipal extends javax.swing.JFrame {
             if (selectedValue instanceof Integer) {
                 int sair = (int) selectedValue;
 
-                if (sair == JOptionPane.YES_OPTION) {
-                    dispose();
+                if (sair == JOptionPane.NO_OPTION) {
+                    dialog.dispose();
+                    
+                } else if (sair == JOptionPane.YES_OPTION) {
+                   dispose();
                 }
             }
         }
-
     }
 
+    
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -445,14 +448,12 @@ public class TelaPrincipal extends javax.swing.JFrame {
         jScrollPane2 = new javax.swing.JScrollPane();
         tblSaldo = new javax.swing.JTable();
         jLabel2 = new javax.swing.JLabel();
-        jLabel1 = new javax.swing.JLabel();
         lblUsuario = new javax.swing.JLabel();
         lblData = new javax.swing.JLabel();
         lblcodEmpresa = new javax.swing.JLabel();
         lblFantasiaEmpresaprin = new javax.swing.JLabel();
         lblCodUsoPrincipal = new javax.swing.JLabel();
         lblAviso = new javax.swing.JLabel();
-        lblIconeOrc = new javax.swing.JLabel();
         Menu = new javax.swing.JMenuBar();
         menCad = new javax.swing.JMenu();
         menPessoas = new javax.swing.JMenuItem();
@@ -572,7 +573,8 @@ public class TelaPrincipal extends javax.swing.JFrame {
                 return false;
             }
         };
-        tblSaldo.setBorder(javax.swing.BorderFactory.createCompoundBorder(null, javax.swing.BorderFactory.createCompoundBorder()));
+        tblSaldo.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        tblSaldo.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         tblSaldo.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null},
@@ -580,7 +582,7 @@ public class TelaPrincipal extends javax.swing.JFrame {
                 {null, null}
             },
             new String [] {
-                "Nome", "Saldo"
+                "Conta", "Saldo"
             }
         ) {
             boolean[] canEdit = new boolean [] {
@@ -595,6 +597,11 @@ public class TelaPrincipal extends javax.swing.JFrame {
 
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/rpsystem/icones/logo_novoSF.png"))); // NOI18N
+        jLabel2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel2MouseClicked(evt);
+            }
+        });
 
         Desktop.setLayer(lblDispositivo, javax.swing.JLayeredPane.DEFAULT_LAYER);
         Desktop.setLayer(lblFoneEmpresa, javax.swing.JLayeredPane.DEFAULT_LAYER);
@@ -611,10 +618,6 @@ public class TelaPrincipal extends javax.swing.JFrame {
         Desktop.setLayout(DesktopLayout);
         DesktopLayout.setHorizontalGroup(
             DesktopLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, DesktopLayout.createSequentialGroup()
-                .addContainerGap(747, Short.MAX_VALUE)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 156, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(46, 46, 46))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, DesktopLayout.createSequentialGroup()
                 .addGap(18, 18, 18)
                 .addGroup(DesktopLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -639,15 +642,22 @@ public class TelaPrincipal extends javax.swing.JFrame {
                         .addComponent(lblClassificacaoFatura)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 259, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addGap(23, 23, 23))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, DesktopLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 156, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(46, 46, 46))
         );
         DesktopLayout.setVerticalGroup(
             DesktopLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(DesktopLayout.createSequentialGroup()
                 .addGap(29, 29, 29)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 153, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 255, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 264, Short.MAX_VALUE)
                 .addGroup(DesktopLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, DesktopLayout.createSequentialGroup()
+                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap())
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, DesktopLayout.createSequentialGroup()
                         .addGroup(DesktopLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(lblClassificacaoFatura)
@@ -662,21 +672,8 @@ public class TelaPrincipal extends javax.swing.JFrame {
                             .addComponent(lblDispositivo)
                             .addComponent(lblFoneEmpresa)
                             .addComponent(lblenviaemailos))
-                        .addGap(20, 20, 20))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, DesktopLayout.createSequentialGroup()
-                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap())))
+                        .addGap(20, 20, 20))))
         );
-
-        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/rpsystem/icones/telaprincipal.png"))); // NOI18N
-        jLabel1.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        jLabel1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jLabel1.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel1MouseClicked(evt);
-            }
-        });
 
         lblUsuario.setFont(new java.awt.Font("Arial", 0, 11)); // NOI18N
         lblUsuario.setText("Usuario");
@@ -702,13 +699,6 @@ public class TelaPrincipal extends javax.swing.JFrame {
         lblAviso.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblAviso.setText("Avisoaqui");
         lblAviso.setToolTipText("");
-
-        lblIconeOrc.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/rpsystem/icones/teste1.png"))); // NOI18N
-        lblIconeOrc.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                lblIconeOrcMouseClicked(evt);
-            }
-        });
 
         menCad.setText("Cadastros");
         menCad.setFont(new java.awt.Font("Arial", 0, 11)); // NOI18N
@@ -1068,43 +1058,27 @@ public class TelaPrincipal extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(lblCodUsoPrincipal)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(lblUsuario)
-                        .addGap(176, 176, 176)
-                        .addComponent(lblcodEmpresa, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(lblFantasiaEmpresaprin, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(lblAviso, javax.swing.GroupLayout.PREFERRED_SIZE, 384, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(Desktop, javax.swing.GroupLayout.DEFAULT_SIZE, 951, Short.MAX_VALUE))
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblData, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(lblIconeOrc)
-                            .addComponent(jLabel1))))
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblCodUsoPrincipal)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(lblUsuario)
+                .addGap(176, 176, 176)
+                .addComponent(lblcodEmpresa, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(lblFantasiaEmpresaprin, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(lblAviso, javax.swing.GroupLayout.PREFERRED_SIZE, 384, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 27, Short.MAX_VALUE)
+                .addComponent(lblData, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
+            .addComponent(Desktop, javax.swing.GroupLayout.DEFAULT_SIZE, 1052, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(Desktop, javax.swing.GroupLayout.DEFAULT_SIZE, 537, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(26, 26, 26)
-                        .addComponent(lblIconeOrc)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jLabel1)
-                        .addGap(47, 47, 47)))
+                .addComponent(Desktop, javax.swing.GroupLayout.DEFAULT_SIZE, 537, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblUsuario)
                     .addComponent(lblData, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -1147,10 +1121,6 @@ public class TelaPrincipal extends javax.swing.JFrame {
         if (!pasta.exists()) {
             pasta.mkdirs();
         }
-//        File file = new File(caminhoexecucao + nomeArquivo);
-//        if (!file.exists()) {
-//            Arquivo.Write(caminhoexecucao + "\\backup.txt", "C:/Program Files/MySQL/MySQL Server 8.0/bin;");
-//        }
 
     }//GEN-LAST:event_formWindowActivated
 
@@ -1295,14 +1265,6 @@ public class TelaPrincipal extends javax.swing.JFrame {
 
         if (lblUsuario.getText().equals("Programador")) {
 
-//            SwingUtilities.invokeLater(() -> {
-//                GeraBackup gb = new GeraBackup();
-//                try {
-//                    gb.GerarBackup();
-//                } catch (InterruptedException ex) {
-//                    Logger.getLogger(TelaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
-//                }
-//            });
         } else {
             SwingUtilities.invokeLater(() -> {
                 GeraBackup gb = new GeraBackup();
@@ -1542,26 +1504,11 @@ public class TelaPrincipal extends javax.swing.JFrame {
         conta.toFront();
     }//GEN-LAST:event_jMenuItem3ActionPerformed
 
-    private void jLabel1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel1MouseClicked
+    private void jLabel2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel2MouseClicked
         // TODO add your handling code here:
-        CarregaSaldoContas carrega = new CarregaSaldoContas(tblSaldo);
-        carrega.exibesaldo();
-
-    }//GEN-LAST:event_jLabel1MouseClicked
-
-    private void lblIconeOrcMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblIconeOrcMouseClicked
-        // TODO add your handling code here:
-        // TODO add your handling code here:
-        TelaOsProdeServ osps = new TelaOsProdeServ();
-        osps.setVisible(true);
-        Desktop.add(osps);
-        CentralizaForm c = new CentralizaForm(osps);
-        c.centralizaForm();
-        //fim coiso 
-        TelaOsProdeServ.txtNumOS.requestFocus();
-        osps.toFront();
-
-    }//GEN-LAST:event_lblIconeOrcMouseClicked
+       CarregaSaldoContas c = new CarregaSaldoContas(tblSaldo);
+       c.exibesaldo();
+    }//GEN-LAST:event_jLabel2MouseClicked
 
     /**
      * @param args the command line arguments
@@ -1609,7 +1556,6 @@ public class TelaPrincipal extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     public static javax.swing.JDesktopPane Desktop;
     private javax.swing.JMenuBar Menu;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JList<String> jList1;
     private javax.swing.JMenu jMenu1;
@@ -1633,7 +1579,6 @@ public class TelaPrincipal extends javax.swing.JFrame {
     public static javax.swing.JLabel lblFantasiaEmpresaprin;
     public static javax.swing.JLabel lblFoneEmpresa;
     public static javax.swing.JLabel lblFormaPgtoFatura;
-    private javax.swing.JLabel lblIconeOrc;
     public static javax.swing.JLabel lblInsereFinAuto;
     public static javax.swing.JLabel lblSituacaoosfinaliza;
     public static javax.swing.JLabel lblUsuario;

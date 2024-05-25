@@ -1550,7 +1550,7 @@ public class TelaLogin extends javax.swing.JFrame {
         lblCodempresa.setText("codempresa");
 
         lblVersãoSis.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
-        lblVersãoSis.setText("113.4");
+        lblVersãoSis.setText("115.0");
 
         jLabel6.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         jLabel6.setText("Versão Sistema:");

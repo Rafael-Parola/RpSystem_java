@@ -10,6 +10,7 @@ import br.com.rpsystem.funcoes.CentralizaForm;
 import br.com.rpsystem.funcoes.Funcoes;
 import br.com.rpsystem.funcoes.GeraLog;
 import br.com.rpsystem.funcoes.LancamentoFinanceiro;
+import java.awt.event.ActionEvent;
 
 import java.awt.event.KeyEvent;
 import java.sql.Connection;
@@ -21,8 +22,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
+import javax.swing.InputMap;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 import javax.swing.table.DefaultTableModel;
 import net.proteanit.sql.DbUtils;
 
@@ -31,6 +37,8 @@ import net.proteanit.sql.DbUtils;
  * @author Rafael Veiga
  */
 public class TelaLancamentoFinanceiro extends javax.swing.JInternalFrame {
+
+    private TelaPesquisaFinanceira telaPesquisa;
 
     Connection conexao = null;
     PreparedStatement pst = null;
@@ -70,9 +78,41 @@ public class TelaLancamentoFinanceiro extends javax.swing.JInternalFrame {
 
         Funcoes conta = new Funcoes(cboConta);
         conta.f_carregaconta(cboConta);
-        conta.f_carregaconta(cboContaPesquisa);
+
         conta.f_carregaconta(cboContaDestino);
 
+        // Inicialize a tela de pesquisa
+        telaPesquisa = new TelaPesquisaFinanceira();
+
+        // Adicione a tela de pesquisa ao desktop pane
+        TelaPrincipal.Desktop.add(telaPesquisa);
+        
+        CentralizaForm c = new CentralizaForm(telaPesquisa);
+        c.centralizaForm();
+
+        // Mapeie a tecla F3
+        InputMap inputMap = getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ActionMap actionMap = getActionMap();
+
+        // Adicione o KeyStroke e a ação correspondente
+        inputMap.put(KeyStroke.getKeyStroke("F3"), "abrirPesquisa");
+        actionMap.put("abrirPesquisa", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                abrirTelaPesquisa();
+            }
+        });
+    }
+
+    private void abrirTelaPesquisa() {
+        if (!telaPesquisa.isVisible()) {
+            telaPesquisa.setVisible(true);
+        }
+        try {
+            telaPesquisa.setSelected(true);
+        } catch (java.beans.PropertyVetoException e) {
+            e.printStackTrace();
+        }
     }
 
     public void preenche_fornecedor() {
@@ -145,7 +185,7 @@ public class TelaLancamentoFinanceiro extends javax.swing.JInternalFrame {
         cboConta.setEnabled(false);
         cboContaDestino.setEnabled(false);
         chkBoxPagoRecebido.setEnabled(false);
-        pesquisa_lancamento();
+
     }
 
     private void limpa_campos() {
@@ -157,7 +197,7 @@ public class TelaLancamentoFinanceiro extends javax.swing.JInternalFrame {
         txtVencimento.setText(null);
         txtdtPgto.setText(null);
         txtValor.setText("0");
-        
+
         jTextObs.setText(null);
         lblAviso.setVisible(false);
         //cboTipo.setSelectedItem("Despesas");
@@ -166,7 +206,7 @@ public class TelaLancamentoFinanceiro extends javax.swing.JInternalFrame {
         txtVencimento.setEnabled(false);
         txtdtPgto.setEnabled(false);
         txtdtPgto.setText(TelaPrincipal.lblData.getText().toString());
-    btnIncluir.requestFocus();
+        btnIncluir.requestFocus();
     }
 
     private void insere_lancamento() throws ParseException {
@@ -198,15 +238,13 @@ public class TelaLancamentoFinanceiro extends javax.swing.JInternalFrame {
         String dtemissao = txtData.getText();
         String dtvenci = txtVencimento.getText();
         String dtpg = txtdtPgto.getText();
- 
-                
-            // if (txtValor == null || txtValor.getText().equals("0") || txtValor.getText().equals(""))
 
-        if ( txtValor.getText().equals("0") || txtValor.getText().equals("")) {
+        // if (txtValor == null || txtValor.getText().equals("0") || txtValor.getText().equals(""))
+        if (txtValor.getText().equals("0") || txtValor.getText().equals("")) {
             //JOptionPane.showMessageDialog(null, "Informe o valor!");
-             
-            JOptionPane.showMessageDialog(null, "Informe o valor!", "Atenção" , JOptionPane.INFORMATION_MESSAGE);
-                
+
+            JOptionPane.showMessageDialog(null, "Informe o valor!", "Atenção", JOptionPane.INFORMATION_MESSAGE);
+
             txtValor.requestFocus();
         } else {
 
@@ -225,86 +263,12 @@ public class TelaLancamentoFinanceiro extends javax.swing.JInternalFrame {
         }
     }
 
-    private void pesquisa_lancamento() {
-        String conta_completa = null;
-        int codigoconta;
-
-        conta_completa = cboContaPesquisa.getSelectedItem().toString();
-        if (conta_completa.equals(" ")) {
-            codigoconta = 0;
-
-        } else {
-            codigoconta = Integer.parseInt(conta_completa.substring(0, 2).replaceAll("\\s|-", ""));
-        }
-
-        String sql = "select l.cod as 'Cod.', l.tipo as Tipo,c.nome as Conta, l.descricao as 'Descrição', l.valor as Valor,\n"
-                + "l.dtemissao as 'Emissão', l.dtvencimento as 'Vencimento', l.dtpagamento as 'Pagamento' \n"
-                + "from lancamentofinanceiro l\n"
-                + "inner join cadastrocontas c \n"
-                + "on l.codConta= c.codigo\n"
-                + "where l.descricao like ?  and l.excluido = 0 and l.empresa_codempresa = ? and l.codConta like ? order by l.cod desc;";
-
-        try {
-            pst = conexao.prepareStatement(sql);
-            // Passando o conteúdo do campo pesquisar para o SQL
-            pst.setString(1, "%" + txtPesquisa.getText() + "%");
-            pst.setString(2, TelaPrincipal.lblcodEmpresa.getText());
-
-            if (codigoconta == 0) {
-                pst.setString(3, "%%");
-            } else {
-                pst.setString(3, "%" + codigoconta + "%");
-            }
-
-            rs = pst.executeQuery();
-
-            // Criar o modelo da tabela
-            DefaultTableModel model = (DefaultTableModel) tblPesquisa.getModel();
-
-            // Limpar o modelo da tabela
-            model.setRowCount(0);
-
-            // Adicionar dados ao modelo
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-            while (rs.next()) {
-                int codigo = rs.getInt("Cod.");
-                String tipo = rs.getString("Tipo");
-                String conta = rs.getString("Conta");
-                String descricao = rs.getString("Descrição");
-                double valor = rs.getDouble("Valor");
-                Date emissao = rs.getDate("Emissão");
-                Date vencimento = rs.getDate("Vencimento");
-                Date pagamento = rs.getDate("Pagamento");
-
-                // Formatar as datas conforme necessário
-                String emissaoFormatada = (emissao != null) ? sdf.format(emissao) : "";
-                String vencimentoFormatado = (vencimento != null) ? sdf.format(vencimento) : "";
-                String pagamentoFormatado = (pagamento != null) ? sdf.format(pagamento) : "";
-
-                model.addRow(new Object[]{codigo, tipo, conta, descricao, valor, emissaoFormatada, vencimentoFormatado, pagamentoFormatado});
-            }
-
-            // Ajustar a largura das colunas da tabela
-            tblPesquisa.getColumnModel().getColumn(0).setPreferredWidth(1);
-            tblPesquisa.getColumnModel().getColumn(1).setPreferredWidth(15);
-            tblPesquisa.getColumnModel().getColumn(2).setPreferredWidth(15);
-            tblPesquisa.getColumnModel().getColumn(3).setPreferredWidth(160);
-            tblPesquisa.getColumnModel().getColumn(4).setPreferredWidth(25);
-            tblPesquisa.getColumnModel().getColumn(5).setPreferredWidth(25);
-            tblPesquisa.getColumnModel().getColumn(6).setPreferredWidth(25);
-            tblPesquisa.getColumnModel().getColumn(7).setPreferredWidth(25);
-
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, e);
-        }
-    }
-
-    private void seta_item_alteracao() {
+    public void seta_item_alteracao() {
 
         String sql = "select * from lancamentofinanceiro where cod = ? and empresa_codempresa = " + TelaPrincipal.lblcodEmpresa.getText();
 
-        int setar = tblPesquisa.getSelectedRow();
-        txtCodFin.setText(tblPesquisa.getModel().getValueAt(setar, 0).toString());
+//        int setar = tblPesquisa.getSelectedRow();
+//        txtCodFin.setText(tblPesquisa.getModel().getValueAt(setar, 0).toString());
         String cod = txtCodFin.getText();
         try {
             pst = conexao.prepareStatement(sql);
@@ -392,6 +356,8 @@ public class TelaLancamentoFinanceiro extends javax.swing.JInternalFrame {
                     rs = pst.executeQuery();
                     if (rs.next()) {
                         txtNomeFornecedor.setText(rs.getString(1));
+                    } else {
+                        txtNomeFornecedor.setText("Opicional");
                     }
                 } catch (Exception e) {
                     System.out.println("Fornecedor");
@@ -400,6 +366,7 @@ public class TelaLancamentoFinanceiro extends javax.swing.JInternalFrame {
                 }
 
             }
+            contarCaracteres();
         } catch (Exception e) {
             System.out.println("Errrrrroooooooooo");
             JOptionPane.showMessageDialog(null, e);
@@ -600,7 +567,6 @@ public class TelaLancamentoFinanceiro extends javax.swing.JInternalFrame {
             cboContaDestino.setVisible(false);
             cboContaDestino.setEnabled(false);
             //chkBoxPagoRecebido.setEnabled(true);
-            
 
         }
     }
@@ -652,6 +618,18 @@ public class TelaLancamentoFinanceiro extends javax.swing.JInternalFrame {
         }
 
     }
+    
+     private void contarCaracteres() {
+        String texto = jTextObs.getText();
+        int numeroCaracteres = texto.length();
+        if (numeroCaracteres > 3000) {
+            jTextObs.setEditable(false); // Desabilita a edição
+            JOptionPane.showMessageDialog(null, "Numero máximo de caracteres atingigo");
+        } else {
+            jTextObs.setEditable(true);  // Habilita a edição
+        }
+        lblNumeroCaracteres.setText(numeroCaracteres + " /3000");
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -684,10 +662,6 @@ public class TelaLancamentoFinanceiro extends javax.swing.JInternalFrame {
         btnSalvar = new javax.swing.JButton();
         tnCancelaaar = new javax.swing.JButton();
         btnExcluir = new javax.swing.JButton();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        tblPesquisa = new javax.swing.JTable();
-        jLabel10 = new javax.swing.JLabel();
-        txtPesquisa = new javax.swing.JTextField();
         txtData = new javax.swing.JFormattedTextField();
         txtVencimento = new javax.swing.JFormattedTextField();
         jLabel11 = new javax.swing.JLabel();
@@ -698,10 +672,11 @@ public class TelaLancamentoFinanceiro extends javax.swing.JInternalFrame {
         jLabel13 = new javax.swing.JLabel();
         cboConta = new javax.swing.JComboBox<>();
         lblAviso = new javax.swing.JLabel();
-        cboContaPesquisa = new javax.swing.JComboBox<>();
         lblContaDest = new javax.swing.JLabel();
         cboContaDestino = new javax.swing.JComboBox<>();
         chkBoxPagoRecebido = new javax.swing.JCheckBox();
+        btnPesquisa = new javax.swing.JButton();
+        lblNumeroCaracteres = new javax.swing.JLabel();
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -738,6 +713,14 @@ public class TelaLancamentoFinanceiro extends javax.swing.JInternalFrame {
             public void internalFrameIconified(javax.swing.event.InternalFrameEvent evt) {
             }
             public void internalFrameOpened(javax.swing.event.InternalFrameEvent evt) {
+            }
+        });
+        addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                formKeyPressed(evt);
+            }
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                formKeyReleased(evt);
             }
         });
 
@@ -882,54 +865,6 @@ public class TelaLancamentoFinanceiro extends javax.swing.JInternalFrame {
             }
         });
 
-        tblPesquisa = new javax.swing.JTable(){
-            public boolean  isCellEditable(int rowIndex, int colIndex){
-                return false;
-            }
-        };
-        tblPesquisa.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "Cod.", "Tipo", "Conta", "Descrição", "Valor", "Emissão", "Vencimento", "Pagamento"
-            }
-        ) {
-            boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false
-            };
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
-        tblPesquisa.setMaximumSize(new java.awt.Dimension(60, 80));
-        tblPesquisa.getColumnModel().getColumn(0).setPreferredWidth(1);
-        tblPesquisa.getColumnModel().getColumn(1).setPreferredWidth(15);
-        tblPesquisa.getColumnModel().getColumn(2).setPreferredWidth(15);
-        tblPesquisa.getColumnModel().getColumn(3).setPreferredWidth(160);
-        tblPesquisa.getColumnModel().getColumn(4).setPreferredWidth(25);
-        tblPesquisa.getColumnModel().getColumn(5).setPreferredWidth(25);
-        tblPesquisa.getColumnModel().getColumn(6).setPreferredWidth(25);
-        tblPesquisa.getColumnModel().getColumn(7).setPreferredWidth(25);
-        tblPesquisa.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                tblPesquisaMouseClicked(evt);
-            }
-        });
-        jScrollPane2.setViewportView(tblPesquisa);
-
-        jLabel10.setText("Pesquisa:");
-
-        txtPesquisa.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                txtPesquisaKeyPressed(evt);
-            }
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                txtPesquisaKeyReleased(evt);
-            }
-        });
-
         try {
             txtData.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.MaskFormatter("##/##/####")));
         } catch (java.text.ParseException ex) {
@@ -1016,24 +951,6 @@ public class TelaLancamentoFinanceiro extends javax.swing.JInternalFrame {
         lblAviso.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblAviso.setText("*Não é possivel alterar todos os campos");
 
-        cboContaPesquisa.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { " " }));
-        cboContaPesquisa.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                cboContaPesquisaMouseClicked(evt);
-            }
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                cboContaPesquisaMousePressed(evt);
-            }
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                cboContaPesquisaMouseReleased(evt);
-            }
-        });
-        cboContaPesquisa.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                cboContaPesquisaKeyPressed(evt);
-            }
-        });
-
         lblContaDest.setVisible(false);
         lblContaDest.setText("Conta Desti.");
 
@@ -1064,108 +981,110 @@ public class TelaLancamentoFinanceiro extends javax.swing.JInternalFrame {
             }
         });
 
+        btnPesquisa.setText("Pesquisa(F3)");
+        btnPesquisa.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPesquisaActionPerformed(evt);
+            }
+        });
+
+        lblNumeroCaracteres.setForeground(new java.awt.Color(51, 51, 51));
+        lblNumeroCaracteres.setText("0/3000");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap(51, Short.MAX_VALUE)
+                .addGap(34, 34, 34)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel11, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addGap(140, 140, 140)
-                                .addComponent(btnIncluir)
-                                .addGap(6, 6, 6)
-                                .addComponent(btnAlterar)
-                                .addGap(6, 6, 6)
-                                .addComponent(btnSalvar)
-                                .addGap(6, 6, 6)
-                                .addComponent(tnCancelaaar)
-                                .addGap(6, 6, 6)
-                                .addComponent(btnExcluir)
-                                .addGap(179, 179, 179))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(layout.createSequentialGroup()
-                                .addGap(18, 18, 18)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 644, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                        .addGroup(layout.createSequentialGroup()
-                                            .addComponent(txtCodFornecedor, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                            .addComponent(txtNomeFornecedor, javax.swing.GroupLayout.PREFERRED_SIZE, 611, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                                .addComponent(chkBoxPagoRecebido, javax.swing.GroupLayout.PREFERRED_SIZE, 149, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                .addComponent(lblAviso, javax.swing.GroupLayout.PREFERRED_SIZE, 274, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                            .addGroup(layout.createSequentialGroup()
-                                                .addComponent(txtData, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jLabel9)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(txtVencimento, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jLabel12)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(txtdtPgto, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(lblContaDest)
-                                                .addGap(18, 18, 18)
-                                                .addComponent(cboContaDestino, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                            .addGroup(layout.createSequentialGroup()
-                                                .addComponent(cboTipo, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addGap(18, 18, 18)
-                                                .addComponent(jLabel13)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(cboConta, javax.swing.GroupLayout.PREFERRED_SIZE, 171, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jLabel6)
-                                                .addGap(18, 18, 18)
-                                                .addComponent(cboClassificacao, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                            .addGroup(layout.createSequentialGroup()
-                                                .addComponent(txtDescricao, javax.swing.GroupLayout.PREFERRED_SIZE, 388, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addGap(18, 18, 18)
-                                                .addComponent(jLabel8)
-                                                .addGap(18, 18, 18)
-                                                .addComponent(txtValor)))))
-                                .addGap(31, 31, 31))))
+                                    .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(jLabel11, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(18, 18, 18))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                        .addComponent(txtCodFin, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                                        .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING))
+                                    .addComponent(lblNumeroCaracteres))
+                                .addGap(34, 34, 34)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(txtCodFornecedor, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(txtNomeFornecedor, javax.swing.GroupLayout.PREFERRED_SIZE, 611, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addGroup(layout.createSequentialGroup()
+                                    .addComponent(txtData, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(jLabel9)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(txtVencimento, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(jLabel12)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(txtdtPgto, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(lblContaDest)
+                                    .addGap(18, 18, 18)
+                                    .addComponent(cboContaDestino, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addGroup(layout.createSequentialGroup()
+                                    .addComponent(cboTipo, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGap(18, 18, 18)
+                                    .addComponent(jLabel13)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(cboConta, javax.swing.GroupLayout.PREFERRED_SIZE, 171, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(jLabel6)
+                                    .addGap(18, 18, 18)
+                                    .addComponent(cboClassificacao, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(layout.createSequentialGroup()
+                                    .addComponent(txtDescricao, javax.swing.GroupLayout.PREFERRED_SIZE, 388, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGap(18, 18, 18)
+                                    .addComponent(jLabel8)
+                                    .addGap(18, 18, 18)
+                                    .addComponent(txtValor)))
+                            .addComponent(lblAviso, javax.swing.GroupLayout.PREFERRED_SIZE, 274, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jScrollPane3)))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 739, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel10)
-                                .addGap(18, 18, 18)
-                                .addComponent(cboContaPesquisa, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(txtPesquisa, javax.swing.GroupLayout.PREFERRED_SIZE, 540, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(37, 37, 37))
+                            .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.TRAILING))
+                        .addGap(676, 676, 676)))
+                .addGap(0, 48, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(txtCodFin, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                            .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING))
-                        .addGap(723, 723, 723))
+                        .addComponent(chkBoxPagoRecebido, javax.swing.GroupLayout.PREFERRED_SIZE, 149, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(539, 539, 539))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jLabel3)
-                        .addGap(707, 707, 707))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jLabel4)
-                        .addGap(707, 707, 707))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jLabel5)
-                        .addGap(707, 707, 707))))
+                        .addComponent(btnIncluir)
+                        .addGap(6, 6, 6)
+                        .addComponent(btnAlterar)
+                        .addGap(6, 6, 6)
+                        .addComponent(btnSalvar)
+                        .addGap(6, 6, 6)
+                        .addComponent(tnCancelaaar)
+                        .addGap(6, 6, 6)
+                        .addComponent(btnExcluir)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnPesquisa)
+                        .addGap(167, 167, 167))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(21, 21, 21)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
-                    .addComponent(lblAviso)
-                    .addComponent(chkBoxPagoRecebido))
-                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(chkBoxPagoRecebido)
+                    .addComponent(lblAviso))
+                .addGap(60, 60, 60)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
                     .addComponent(cboTipo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel3)
@@ -1197,27 +1116,27 @@ public class TelaLancamentoFinanceiro extends javax.swing.JInternalFrame {
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 50, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(btnIncluir)
+                            .addComponent(btnAlterar)
+                            .addComponent(btnSalvar)
+                            .addComponent(tnCancelaaar)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(btnExcluir)
+                                .addComponent(btnPesquisa)))
+                        .addGap(52, 52, 52))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(12, 12, 12)
                         .addComponent(jLabel11)
-                        .addGap(18, 18, 18)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(lblNumeroCaracteres)
+                        .addGap(44, 44, 44)
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtCodFin, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnIncluir)
-                    .addComponent(btnAlterar)
-                    .addComponent(btnSalvar)
-                    .addComponent(tnCancelaaar)
-                    .addComponent(btnExcluir))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel10)
-                    .addComponent(txtPesquisa, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(cboContaPesquisa, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(35, Short.MAX_VALUE))
+                        .addComponent(txtCodFin, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
 
         setBounds(0, 0, 858, 604);
@@ -1225,6 +1144,7 @@ public class TelaLancamentoFinanceiro extends javax.swing.JInternalFrame {
 
     private void formInternalFrameActivated(javax.swing.event.InternalFrameEvent evt) {//GEN-FIRST:event_formInternalFrameActivated
         // TODO add your handling code here:
+        seta_item_alteracao();
 
     }//GEN-LAST:event_formInternalFrameActivated
 
@@ -1293,16 +1213,6 @@ public class TelaLancamentoFinanceiro extends javax.swing.JInternalFrame {
 
         }
     }//GEN-LAST:event_btnAlterarActionPerformed
-
-    private void txtPesquisaKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtPesquisaKeyPressed
-        // TODO add your handling code here:
-
-    }//GEN-LAST:event_txtPesquisaKeyPressed
-
-    private void txtPesquisaKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtPesquisaKeyReleased
-        // TODO add your handling code here:
-        pesquisa_lancamento();
-    }//GEN-LAST:event_txtPesquisaKeyReleased
 
     private void cboTipoKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_cboTipoKeyReleased
         // TODO add your handling code here:
@@ -1386,18 +1296,6 @@ public class TelaLancamentoFinanceiro extends javax.swing.JInternalFrame {
 
     }//GEN-LAST:event_txtCodFornecedorKeyReleased
 
-    private void tblPesquisaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblPesquisaMouseClicked
-        // TODO add your handling code here:
-        if (cboTipo.isEnabled() == true) {
-            bloqueiacampos();
-            limpa_campos();
-        }
-        //bloqueiacampos();
-        seta_item_alteracao();
-
-
-    }//GEN-LAST:event_tblPesquisaMouseClicked
-
     private void btnSalvarKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_btnSalvarKeyPressed
         // TODO add your handling code here:
         String vazio = txtCodFin.getText();
@@ -1470,26 +1368,6 @@ public class TelaLancamentoFinanceiro extends javax.swing.JInternalFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_txtNomeFornecedorActionPerformed
 
-    private void cboContaPesquisaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cboContaPesquisaMouseClicked
-        // TODO add your handling code here:
-        pesquisa_lancamento();
-    }//GEN-LAST:event_cboContaPesquisaMouseClicked
-
-    private void cboContaPesquisaMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cboContaPesquisaMousePressed
-        // TODO add your handling code here:
-
-    }//GEN-LAST:event_cboContaPesquisaMousePressed
-
-    private void cboContaPesquisaMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cboContaPesquisaMouseReleased
-        // TODO add your handling code here:
-        pesquisa_lancamento();
-    }//GEN-LAST:event_cboContaPesquisaMouseReleased
-
-    private void cboContaPesquisaKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_cboContaPesquisaKeyPressed
-        // TODO add your handling code here:
-        pesquisa_lancamento();
-    }//GEN-LAST:event_cboContaPesquisaKeyPressed
-
     private void cboTipoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboTipoActionPerformed
         // TODO add your handling code here:
         campos_transferencia();
@@ -1502,7 +1380,8 @@ public class TelaLancamentoFinanceiro extends javax.swing.JInternalFrame {
         if (tipo2.equals("Receita")) {
             chkBoxPagoRecebido.setText("Recebido");
             chkBoxPagoRecebido.setEnabled(true);
-        }  if (tipo2.equals("Transferencia")) {
+        }
+        if (tipo2.equals("Transferencia")) {
             chkBoxPagoRecebido.setText("Transferencia");
 
         }
@@ -1516,7 +1395,7 @@ public class TelaLancamentoFinanceiro extends javax.swing.JInternalFrame {
         // TODO add your handling code here:
         campos_transferencia();
         String tipo3 = cboTipo.getSelectedItem().toString();
-       // System.out.println(tipo3);
+        // System.out.println(tipo3);
         if (tipo3.equals("Despesas")) {
             chkBoxPagoRecebido.setText("Pago");
             chkBoxPagoRecebido.setEnabled(true);
@@ -1524,7 +1403,8 @@ public class TelaLancamentoFinanceiro extends javax.swing.JInternalFrame {
         if (tipo3.equals("Receita")) {
             chkBoxPagoRecebido.setText("Recebido");
             chkBoxPagoRecebido.setEnabled(true);
-        } if (tipo3.equals("Transferencia")) {
+        }
+        if (tipo3.equals("Transferencia")) {
             chkBoxPagoRecebido.setText("Transferencia");
             //chkBoxPagoRecebido.setEnabled(false);
         }
@@ -1553,25 +1433,61 @@ public class TelaLancamentoFinanceiro extends javax.swing.JInternalFrame {
 
     private void chkBoxPagoRecebidoKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_chkBoxPagoRecebidoKeyPressed
         // TODO add your handling code here:
-           if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
             cboTipo.requestFocus();
         }
     }//GEN-LAST:event_chkBoxPagoRecebidoKeyPressed
+
+    private void btnPesquisaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPesquisaActionPerformed
+        // TODO add your handling code here:
+        TelaPesquisaFinanceira fin = new TelaPesquisaFinanceira();
+        TelaPrincipal.Desktop.add(fin);
+        fin.setVisible(true);
+        CentralizaForm c = new CentralizaForm(fin);
+        c.centralizaForm();
+        fin.toFront();
+
+    }//GEN-LAST:event_btnPesquisaActionPerformed
+
+    private void formKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_formKeyPressed
+        // TODO add your handling code here:
+        if (evt.getKeyCode() == KeyEvent.VK_F3) {
+            TelaPesquisaFinanceira fin = new TelaPesquisaFinanceira();
+            TelaPrincipal.Desktop.add(fin);
+            fin.setVisible(true);
+            CentralizaForm c = new CentralizaForm(fin);
+            c.centralizaForm();
+            fin.toFront();
+
+        }
+    }//GEN-LAST:event_formKeyPressed
+
+    private void formKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_formKeyReleased
+        // TODO add your handling code here:
+        if (evt.getKeyCode() == KeyEvent.VK_F3) {
+            TelaPesquisaFinanceira fin = new TelaPesquisaFinanceira();
+            TelaPrincipal.Desktop.add(fin);
+            fin.setVisible(true);
+            CentralizaForm c = new CentralizaForm(fin);
+            c.centralizaForm();
+            fin.toFront();
+
+        }
+    }//GEN-LAST:event_formKeyReleased
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAlterar;
     private javax.swing.JButton btnExcluir;
     public static javax.swing.JButton btnIncluir;
+    private javax.swing.JButton btnPesquisa;
     private javax.swing.JButton btnSalvar;
     private javax.swing.JComboBox<String> cboClassificacao;
     private javax.swing.JComboBox<String> cboConta;
     private javax.swing.JComboBox<String> cboContaDestino;
-    private javax.swing.JComboBox<String> cboContaPesquisa;
     private javax.swing.JComboBox<String> cboTipo;
     private javax.swing.JCheckBox chkBoxPagoRecebido;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
@@ -1583,20 +1499,18 @@ public class TelaLancamentoFinanceiro extends javax.swing.JInternalFrame {
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTable jTable1;
     private javax.swing.JTextArea jTextObs;
     private javax.swing.JLabel lblAviso;
     private javax.swing.JLabel lblContaDest;
-    private javax.swing.JTable tblPesquisa;
+    private javax.swing.JLabel lblNumeroCaracteres;
     private javax.swing.JButton tnCancelaaar;
-    private javax.swing.JTextField txtCodFin;
+    public static javax.swing.JTextField txtCodFin;
     public static javax.swing.JTextField txtCodFornecedor;
     private javax.swing.JFormattedTextField txtData;
     public static javax.swing.JTextField txtDescricao;
     public static javax.swing.JTextField txtNomeFornecedor;
-    private javax.swing.JTextField txtPesquisa;
     private javax.swing.JTextField txtValor;
     private javax.swing.JFormattedTextField txtVencimento;
     private javax.swing.JFormattedTextField txtdtPgto;
