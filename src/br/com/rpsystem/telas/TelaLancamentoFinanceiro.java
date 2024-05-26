@@ -86,7 +86,7 @@ public class TelaLancamentoFinanceiro extends javax.swing.JInternalFrame {
 
         // Adicione a tela de pesquisa ao desktop pane
         TelaPrincipal.Desktop.add(telaPesquisa);
-        
+
         CentralizaForm c = new CentralizaForm(telaPesquisa);
         c.centralizaForm();
 
@@ -618,8 +618,8 @@ public class TelaLancamentoFinanceiro extends javax.swing.JInternalFrame {
         }
 
     }
-    
-     private void contarCaracteres() {
+
+    private void contarCaracteres() {
         String texto = jTextObs.getText();
         int numeroCaracteres = texto.length();
         if (numeroCaracteres > 3000) {
@@ -734,7 +734,7 @@ public class TelaLancamentoFinanceiro extends javax.swing.JInternalFrame {
         txtCodFin.setEnabled(false);
 
         jLabel2.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
-        jLabel2.setText("Fornecedor(F3):");
+        jLabel2.setText("Fornecedor:");
         jLabel2.setToolTipText("Pressione F3 para buscar pelo nome");
 
         txtCodFornecedor.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
@@ -1017,37 +1017,36 @@ public class TelaLancamentoFinanceiro extends javax.swing.JInternalFrame {
                                 .addComponent(txtCodFornecedor, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(txtNomeFornecedor, javax.swing.GroupLayout.PREFERRED_SIZE, 611, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(txtData, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(jLabel9)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(txtVencimento, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(jLabel12)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(txtdtPgto, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(lblContaDest)
-                                    .addGap(18, 18, 18)
-                                    .addComponent(cboContaDestino, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(cboTipo, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGap(18, 18, 18)
-                                    .addComponent(jLabel13)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(cboConta, javax.swing.GroupLayout.PREFERRED_SIZE, 171, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(jLabel6)
-                                    .addGap(18, 18, 18)
-                                    .addComponent(cboClassificacao, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(txtDescricao, javax.swing.GroupLayout.PREFERRED_SIZE, 388, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGap(18, 18, 18)
-                                    .addComponent(jLabel8)
-                                    .addGap(18, 18, 18)
-                                    .addComponent(txtValor)))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addComponent(txtData, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel9)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(txtVencimento, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel12)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(txtdtPgto, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(lblContaDest)
+                                .addGap(18, 18, 18)
+                                .addComponent(cboContaDestino, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addComponent(cboTipo, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(jLabel13)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(cboConta, javax.swing.GroupLayout.PREFERRED_SIZE, 171, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel6)
+                                .addGap(18, 18, 18)
+                                .addComponent(cboClassificacao, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addComponent(txtDescricao, javax.swing.GroupLayout.PREFERRED_SIZE, 388, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(jLabel8)
+                                .addGap(18, 18, 18)
+                                .addComponent(txtValor))
                             .addComponent(lblAviso, javax.swing.GroupLayout.PREFERRED_SIZE, 274, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jScrollPane3)))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
@@ -1056,7 +1055,7 @@ public class TelaLancamentoFinanceiro extends javax.swing.JInternalFrame {
                             .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.TRAILING))
                         .addGap(676, 676, 676)))
-                .addGap(0, 48, Short.MAX_VALUE))
+                .addGap(0, 55, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1150,22 +1149,28 @@ public class TelaLancamentoFinanceiro extends javax.swing.JInternalFrame {
 
     private void txtCodFornecedorKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtCodFornecedorKeyPressed
         // TODO add your handling code here:
-        if (evt.getKeyCode() == KeyEvent.VK_F3) {
-            TelaPesquisa pesquisa = new TelaPesquisa();
-            TelaPrincipal.Desktop.add(pesquisa);
-            pesquisa.setVisible(true);
-            CentralizaForm c = new CentralizaForm(pesquisa);
-            c.centralizaForm();
-            pesquisa.toFront();
-            pesquisa.setTitle("Lançamento Financeiro");
-            pesquisa.lblOrigem.setText("CLASSFIN");
-            //
+        String codfornecedor = txtCodFornecedor.getText();
+        if (codfornecedor.equals("")) {
+            System.out.println(codfornecedor);
+            if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+                TelaPesquisa pesquisa = new TelaPesquisa();
+                TelaPrincipal.Desktop.add(pesquisa);
+                pesquisa.setVisible(true);
+                CentralizaForm c = new CentralizaForm(pesquisa);
+                c.centralizaForm();
+                pesquisa.toFront();
+                pesquisa.setTitle("Lançamento Financeiro");
+                pesquisa.lblOrigem.setText("CLASSFIN");
+                //
+
+            } 
         }
         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
             jTextObs.requestFocus();
             preenche_fornecedor();
             // txtDescricao.setText(txtNomeFornecedor.getText());
         }
+
     }//GEN-LAST:event_txtCodFornecedorKeyPressed
 
     private void btnIncluirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnIncluirActionPerformed
@@ -1332,6 +1337,7 @@ public class TelaLancamentoFinanceiro extends javax.swing.JInternalFrame {
         if (evt.getKeyCode() == KeyEvent.VK_TAB) {
             btnSalvar.requestFocus();
         }
+        contarCaracteres();
     }//GEN-LAST:event_jTextObsKeyPressed
 
     private void txtdtPgtoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtdtPgtoActionPerformed
