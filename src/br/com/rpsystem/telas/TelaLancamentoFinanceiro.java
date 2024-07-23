@@ -734,7 +734,7 @@ public class TelaLancamentoFinanceiro extends javax.swing.JInternalFrame {
         txtCodFin.setEnabled(false);
 
         jLabel2.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
-        jLabel2.setText("Fornecedor:");
+        jLabel2.setText("Fornecedor(F2:");
         jLabel2.setToolTipText("Pressione F3 para buscar pelo nome");
 
         txtCodFornecedor.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
@@ -849,6 +849,9 @@ public class TelaLancamentoFinanceiro extends javax.swing.JInternalFrame {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 btnSalvarKeyPressed(evt);
             }
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                btnSalvarKeyReleased(evt);
+            }
         });
 
         tnCancelaaar.setText("Cancelar");
@@ -905,6 +908,9 @@ public class TelaLancamentoFinanceiro extends javax.swing.JInternalFrame {
         jTextObs.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 jTextObsKeyPressed(evt);
+            }
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jTextObsKeyReleased(evt);
             }
         });
         jScrollPane3.setViewportView(jTextObs);
@@ -1055,7 +1061,7 @@ public class TelaLancamentoFinanceiro extends javax.swing.JInternalFrame {
                             .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.TRAILING))
                         .addGap(676, 676, 676)))
-                .addGap(0, 55, Short.MAX_VALUE))
+                .addGap(0, 52, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1151,8 +1157,8 @@ public class TelaLancamentoFinanceiro extends javax.swing.JInternalFrame {
         // TODO add your handling code here:
         String codfornecedor = txtCodFornecedor.getText();
         if (codfornecedor.equals("")) {
-            System.out.println(codfornecedor);
-            if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+            //System.out.println(codfornecedor);
+            if (evt.getKeyCode() == KeyEvent.VK_F2) {
                 TelaPesquisa pesquisa = new TelaPesquisa();
                 TelaPrincipal.Desktop.add(pesquisa);
                 pesquisa.setVisible(true);
@@ -1168,7 +1174,7 @@ public class TelaLancamentoFinanceiro extends javax.swing.JInternalFrame {
         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
             jTextObs.requestFocus();
             preenche_fornecedor();
-            // txtDescricao.setText(txtNomeFornecedor.getText());
+          
         }
 
     }//GEN-LAST:event_txtCodFornecedorKeyPressed
@@ -1337,7 +1343,7 @@ public class TelaLancamentoFinanceiro extends javax.swing.JInternalFrame {
         if (evt.getKeyCode() == KeyEvent.VK_TAB) {
             btnSalvar.requestFocus();
         }
-        contarCaracteres();
+       
     }//GEN-LAST:event_jTextObsKeyPressed
 
     private void txtdtPgtoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtdtPgtoActionPerformed
@@ -1480,6 +1486,15 @@ public class TelaLancamentoFinanceiro extends javax.swing.JInternalFrame {
 
         }
     }//GEN-LAST:event_formKeyReleased
+
+    private void jTextObsKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextObsKeyReleased
+        // TODO add your handling code here:
+         contarCaracteres();
+    }//GEN-LAST:event_jTextObsKeyReleased
+
+    private void btnSalvarKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_btnSalvarKeyReleased
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnSalvarKeyReleased
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

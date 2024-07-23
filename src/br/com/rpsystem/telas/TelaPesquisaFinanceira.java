@@ -8,13 +8,19 @@ import br.com.rpsystem.dal.ModuloConexao;
 import br.com.rpsystem.funcoes.Funcoes;
 import static br.com.rpsystem.telas.TelaFechaFatura.cboConta;
 import static br.com.rpsystem.telas.TelaOs.txtCodCliOs;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
+import javax.swing.InputMap;
+import javax.swing.JComponent;
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 import javax.swing.table.DefaultTableModel;
 import net.proteanit.sql.DbUtils;
 
@@ -40,6 +46,20 @@ public class TelaPesquisaFinanceira extends javax.swing.JInternalFrame {
         txtPesquisa.requestFocus();
         Funcoes conta = new Funcoes(cboConta);
         conta.f_carregaconta(cboConta);
+
+        // Mapeie a tecla ESC para fechar a tela
+        InputMap inputMap = this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ActionMap actionMap = this.getActionMap();
+
+        // Adicione o KeyStroke e a ação correspondente para fechar a tela com ESC
+        inputMap.put(KeyStroke.getKeyStroke("ESCAPE"), "fecharTela");
+        actionMap.put("fecharTela", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+            }
+        });
+
     }
 
     private void pesquisa_lancamento() {
